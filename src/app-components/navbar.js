@@ -104,10 +104,8 @@ export default connect(
   "doAuthLogin",
   "selectAuthIsLoggedIn",
   ({ doAuthLogin, authIsLoggedIn }) => (
-    <nav className="navbar navbar-expand-md navbar-dark bg-dark mb-4">
-      <span className="navbar-brand">
-        APP_NAME
-      </span>
+    <nav className="navbar navbar-expand-md navbar-dark bg-dark">
+      <span className="navbar-brand">workplan</span>
       <button
         className="navbar-toggler"
         type="button"
