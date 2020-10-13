@@ -4,7 +4,10 @@ import Navbar from "../app-components/navbar";
 
 import CommitmentForm from "../app-components/CommitmentForm";
 import ProjectCard from "../app-components/ProjectCard";
-import EmployeeAvailabilityTable from "../app-components/EmployeeAvailabilityTable";
+import {
+  EmployeeAvailabilityTable,
+  EmployeeAvailabilityTableKey,
+} from "../app-components/EmployeeAvailabilityTable";
 
 const ProjectCards = connect(
   "selectProjectsItemsArray",
@@ -22,26 +25,35 @@ const ProjectCards = connect(
     )
 );
 
-export default () => (
-  <>
-    <Navbar />
-    <main role="main">
-      <div className="container-fluid">
-        <div className="row jumbotron">
-          <ProjectCards />
+export default connect(
+  "selectAuthIsLoggedIn",
+  ({ authIsLoggedIn: isLoggedIn }) => (
+    <>
+      <Navbar />
+      <main role="main">
+        <div className="container-fluid">
+          {isLoggedIn ? (
+            <>
+              <div className="row jumbotron">
+                <ProjectCards />
+              </div>
+              <div className="row mb-3">
+                <div className="d-flex justify-content-between align-items-end">
+                  <CommitmentForm />
+                  <EmployeeAvailabilityTableKey />
+                </div>
+              </div>
+              <div className="row">
+                <div className="col">
+                  <EmployeeAvailabilityTable />
+                </div>
+              </div>
+            </>
+          ) : (
+            <h1>Login to Continue</h1>
+          )}
         </div>
-        <div className="row">
-          <div className="col-12">
-            <p className="h4">Employees</p>
-          </div>
-        </div>
-        <CommitmentForm />
-        <div className="row">
-          <div className="col">
-            <EmployeeAvailabilityTable />
-          </div>
-        </div>
-      </div>
-    </main>
-  </>
+      </main>
+    </>
+  )
 );

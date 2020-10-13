@@ -13,9 +13,10 @@ export default createRestBundle({
   putTemplate: ":/",
   postTemplate: "/commitments",
   deleteTemplate: "/commitments/:item.id",
-  fetchActions: [],
+  fetchActions: ["AUTH_LOGGED_IN", "AUTH_VERIFY_TOKEN"],
   forceFetchActions: [],
   urlParamSelectors: [],
+  allowRoles: ["PUBLIC.USER"],
   addons: {
     selectCommitmentsByEmployeeId: createSelector(
       "selectCommitmentsItemsArray",

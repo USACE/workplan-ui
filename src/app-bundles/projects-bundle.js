@@ -16,6 +16,7 @@ export default createRestBundle({
   fetchActions: ["URL_UPDATED", "AUTH_LOGGED_IN"],
   forceFetchActions: [],
   urlParamSelectors: [],
+  allowRoles: ["PUBLIC.USER"],
   addons: {
     selectProjectsChartData: createSelector(
       "selectProjectsCostsByTimeperiod",

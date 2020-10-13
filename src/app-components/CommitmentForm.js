@@ -5,18 +5,21 @@ export default connect(
   "selectEmployeesItemsObject",
   "selectEmployeesItemsArray",
   "selectProjectsItemsArray",
-  "selectTimeperiodItemsArray",
+  "selectTimeperiodCurrentAndFutureItemsArray",
+  "doTimeperiodSetSelectedId",
+  "selectTimeperiodSelectedId",
   "doCommitmentsSave",
   ({
     employeesItemsObject: employeesObject,
     employeesItemsArray: employees,
     projectsItemsArray: projects,
-    timeperiodItemsArray: timeperiods,
+    timeperiodCurrentAndFutureItemsArray: timeperiods,
+    doTimeperiodSetSelectedId,
+    timeperiodSelectedId,
     doCommitmentsSave,
   }) => {
     const [employee, setEmployee] = useState("");
     const [project, setProject] = useState("");
-    const [timeperiod, setTimeperiod] = useState("");
     const [days, setDays] = useState(0);
 
     const handleSubmit = (e) => {
@@ -24,7 +27,7 @@ export default connect(
       const payload = {
         employee_id: employee,
         project_id: project,
-        timeperiod_id: timeperiod,
+        timeperiod_id: timeperiodSelectedId,
         days: days,
         cost: employeesObject[employee].rate * 8 * days,
       };
@@ -39,8 +42,8 @@ export default connect(
       if (project === "" && projects && projects.length) {
         setProject(projects[0].id);
       }
-      if (timeperiod === "" && timeperiods && timeperiods.length) {
-        setTimeperiod(timeperiods[0].id);
+      if (!timeperiodSelectedId && timeperiods && timeperiods.length) {
+        doTimeperiodSetSelectedId(timeperiods[0].id);
       }
     };
     // On initial render, initialize form without requiring onChange handler.
@@ -48,43 +51,15 @@ export default connect(
     useEffect(initializeForm, [employees, projects, timeperiods]);
 
     return (
-      <div>
-        <form>
-          <div className="row my-2">
-            <div className="col">
-              <label>Select Employee:</label>
+      <form>
+        <div className="col">
+          <div className="d-flex flex-row align-items-end">
+            <div className="mr-2">
+              <label>Timeperiod</label>
               <select
-                value={employee}
-                onChange={(e) => setEmployee(e.target.value)}
-                className="custom-select mb-3"
-              >
-                {employees.map((e) => (
-                  <option key={`employee_option_${e.id}`} value={e.id}>
-                    {e.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col">
-              <label>Select Project:</label>
-              <select
-                value={project}
-                onChange={(e) => setProject(e.target.value)}
-                className="custom-select mb-3"
-              >
-                {projects.map((p) => (
-                  <option selected key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col">
-              <label>Select Timeperiod:</label>
-              <select
-                value={timeperiod}
-                onChange={(e) => setTimeperiod(e.target.value)}
-                className="custom-select mb-3"
+                value={timeperiods[timeperiodSelectedId]}
+                onChange={(e) => doTimeperiodSetSelectedId(e.target.value)}
+                className="custom-select"
                 type="number"
               >
                 {timeperiods.map((t) => (
@@ -94,9 +69,36 @@ export default connect(
                 ))}
               </select>
             </div>
-
-            <div className="col">
-              <label>Number of Days to Commit</label>
+            <div className="mx-2">
+              <label>Employee</label>
+              <select
+                value={employee}
+                onChange={(e) => setEmployee(e.target.value)}
+                className="custom-select"
+              >
+                {employees.map((e) => (
+                  <option key={`employee_option_${e.id}`} value={e.id}>
+                    {e.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mx-2">
+              <label>Project</label>
+              <select
+                value={project}
+                onChange={(e) => setProject(e.target.value)}
+                className="custom-select"
+              >
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mx-2">
+              <label>Days to Commit</label>
               <input
                 onChange={(e) => setDays(parseInt(e.target.value))}
                 value={days}
@@ -107,7 +109,7 @@ export default connect(
                 required
               />
             </div>
-            <div className="col">
+            <div className="ml-2">
               <button
                 type="button"
                 className="btn btn-info"
@@ -117,8 +119,8 @@ export default connect(
               </button>
             </div>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     );
   }
 );
