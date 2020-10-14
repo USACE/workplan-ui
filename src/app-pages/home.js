@@ -45,12 +45,22 @@ export default connect(
               </div>
               <div className="row">
                 <div className="col">
+                  <small>
+                    * Numbers represent days not yet assigned to projects or
+                    leave
+                  </small>
                   <EmployeeAvailabilityTable />
                 </div>
               </div>
             </>
           ) : (
-            <h1>Login to Continue</h1>
+            <div className="row">
+              <div className="col col-6 offset-3">
+                <h1 className="mt-5 display-4 text-center">
+                  Login to Continue
+                </h1>
+              </div>
+            </div>
           )}
         </div>
       </main>
