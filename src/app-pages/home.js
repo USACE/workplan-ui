@@ -14,11 +14,16 @@ const ProjectCards = connect(
   ({ projectsItemsArray: projects }) =>
     projects && projects.length ? (
       <>
-        {projects.map((p, idx) => (
-          <div key={idx} className="col-12 col-sm-6 col-lg-4">
-            <ProjectCard project={p} />
-          </div>
-        ))}
+        {projects.map((p, idx) =>
+          // Do not show leave as a project
+          p.name.toUpperCase() === "LEAVE" ? (
+            <></>
+          ) : (
+            <div key={idx} className="col-12 col-sm-6 col-lg-4">
+              <ProjectCard project={p} />
+            </div>
+          )
+        )}
       </>
     ) : (
       <></>
