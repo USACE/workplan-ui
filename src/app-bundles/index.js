@@ -17,12 +17,20 @@ import employeesBundle from "./employees-bundle";
 import projectsBundle from "./projects-bundle";
 import timeperiodBundle from "./timeperiod-bundle";
 
+// In House Labor
+// Travel/BuyingStuff
+// Contract
+
+console.log(process.env.NODE_ENV);
 export default composeBundles(
   createAuthBundle({
     appId: "ef720041-d710-4b27-99d6-1638611b97d5",
     redirectOnLogout: pkg.homepage,
+    mock: process.env.NODE_ENV === "development" ? true : false,
     token:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwIiwibmFtZSI6IlRlc3QuVXNlciIsImlhdCI6MTUxNjIzOTAyMn0.D_66UceE82DkXwKcpzj0cxl126jAaev_FSGPCDzhRys",
+      process.env.NODE_ENV === "development"
+        ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwIiwibmFtZSI6IlVzZXIuVGVzdCIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoyMDAwMDAwMDAwLCJyb2xlcyI6WyJQVUJMSUMuVVNFUiJdfQ.Igbrcn-3Sk-bysuvCUgX5gFW5AuDfPidswIsZg4Oaos"
+        : null,
   }),
   createJwtApiBundle({
     root:

@@ -11,9 +11,26 @@ export const EmployeeAvailabilityTableKey = (props) => (
   </div>
 );
 
+const Snippet = connect(
+  "selectProjectsItemsObject",
+  ({ projectsItemsObject: projectObj, item }) => {
+    const projects = item.projects;
+    return (
+      <div>
+        {Object.keys(projects).map((p, idx) => (
+          <div>
+            {projectObj[p].name}
+            <small>({projects[p].days}days)</small>
+          </div>
+        ))}
+      </div>
+    );
+  }
+);
+
 export const EmployeeAvailabilityTable = connect(
   "selectEmployeesTimeperiodCommitmentTotals",
-  "selectEmployeesTimeperiodProjectPercentages",
+  "selectEmployeesTimeperiodSummary",
   "selectTimeperiodItemsArray",
   "selectEmployeesItemsArray",
   "selectTimeperiodSelected",
@@ -21,7 +38,7 @@ export const EmployeeAvailabilityTable = connect(
   "selectProjectsItemsObject",
   ({
     employeesTimeperiodCommitmentTotals: ecTotals,
-    employeesTimeperiodProjectPercentages: ePercentages,
+    employeesTimeperiodSummary: etSummary,
     timeperiodItemsArray: timeperiods,
     employeesItemsArray: employees,
     timeperiodSelected,
@@ -59,7 +76,12 @@ export const EmployeeAvailabilityTable = connect(
               <th scope="col">Employee</th>
               {timeperiods.map((t) => (
                 <th className={tpCellClass(t)} key={t.id} scope="col">
-                  {t.name}
+                  <div>
+                    <div>{t.name}</div>
+                    <div>
+                      <small>{t.workdays}d</small>
+                    </div>
+                  </div>
                 </th>
               ))}
             </tr>
@@ -85,17 +107,7 @@ export const EmployeeAvailabilityTable = connect(
                       key={`${e.id}-${t.id}-projectpercents`}
                       className={tpCellClass(t)}
                     >
-                      {Object.entries(ePercentages[e.id][t.id]).map(
-                        (keyval, idx) => {
-                          return (
-                            <div key={idx}>
-                              <small>{`${projectsObj[keyval[0]].name}:${
-                                keyval[1]
-                              }%`}</small>
-                            </div>
-                          );
-                        }
-                      )}
+                      <Snippet item={etSummary[e.id][t.id]} />
                     </td>
                   ))}
                 </tr>

@@ -18,7 +18,7 @@ export default createRestBundle({
   urlParamSelectors: [],
   allowRoles: ["PUBLIC.USER"],
   addons: {
-    selectEmployeesTimeperiodProjectPercentages: createSelector(
+    selectEmployeesTimeperiodProjectBreakdown: createSelector(
       "selectEmployeesTimeperiodCommittedDaysByProject",
       "selectTimeperiodItemsObject",
       (tbp, timeperiodItemsObj) => {
@@ -48,6 +48,55 @@ export default createRestBundle({
             }
           });
         });
+        return obj;
+      }
+    ),
+    selectEmployeesTimeperiodSummary: createSelector(
+      "selectEmployeesItemsArray",
+      "selectCommitmentsItemsArray",
+      "selectTimeperiodItemsObject",
+      "selectEmployeesIsLoading",
+      "selectTimeperiodIsLoading",
+      (
+        employees,
+        commitments,
+        timeperiodObj,
+        employeesIsLoading,
+        timeperiodIsLoading
+      ) => {
+        if (
+          employeesIsLoading ||
+          timeperiodIsLoading ||
+          !employees.length ||
+          !timeperiodObj ||
+          !Object.keys(timeperiodObj).length
+        ) {
+          return {};
+        }
+        let obj = {};
+        // Object key is employee
+        employees.forEach((e) => {
+          obj[e.id] = {};
+          Object.values(timeperiodObj).forEach((t) => {
+            obj[e.id][t.id] = {
+              workdays_total: t.workdays,
+              workdays_free: t.workdays, // Compute later...
+              projects: {},
+            };
+          });
+        });
+        commitments.forEach((c) => {
+          // Add to employee's projects for timeperiod
+          obj[c.employee_id][c.timeperiod_id]["projects"][c.project_id] = {
+            days: c.days,
+            percent: parseInt(
+              (c.days * 100) / timeperiodObj[c.timeperiod_id].workdays
+            ),
+          };
+          // Adjust workdays_free for employee timeperiod
+          obj[c.employee_id][c.timeperiod_id].workdays_free -= c.days;
+        });
+
         return obj;
       }
     ),

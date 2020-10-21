@@ -16,6 +16,7 @@ export default (opts) => {
   };
 
   const config = Object.assign({}, defaults, opts);
+  console.log(config);
 
   if (opts.appId)
     config.url = `https://corpsmap-dev.sec.usace.army.mil/cwbi/goauth/token/${opts.appId}`;
@@ -28,9 +29,11 @@ export default (opts) => {
         url: config.url,
         token: config.token,
         error: null,
+        mock: config.mock,
         shouldVerifyToken: true,
         redirectOnLogout: config.redirectOnLogout,
       };
+      console.log(initialState);
 
       return (state = initialState, { type, payload }) => {
         switch (type) {
@@ -46,26 +49,35 @@ export default (opts) => {
     },
 
     doAuthLogin: () => ({ dispatch, store }) => {
-      const url = store.selectAuthUrl();
-      //@todo move to fetch api at some point
-      try {
-        xhr(url, (err, response, body) => {
-          if (err) {
-            throw new Error("Login Response not ok");
-          } else {
-            const token = typeof body === "string" ? body : JSON.parse(body);
-            dispatch({
-              type: "AUTH_LOGGED_IN",
-              payload: { token: token, error: null, shouldVerifyToken: true },
-            });
-          }
-        });
-      } catch (err) {
-        if (process.env.NODE_ENV === "development") console.error(err);
+      const isMock = store.selectAuthIsMocked();
+      if (isMock) {
+        const token = store.selectAuthTokenRaw();
         dispatch({
-          type: "AUTH_ERROR",
-          payload: { msg: "Error Logging In", err: err },
+          type: "AUTH_LOGGED_IN",
+          payload: { token: token, error: null, shouldVerifyToken: true },
         });
+      } else {
+        const url = store.selectAuthUrl();
+        //@todo move to fetch api at some point
+        try {
+          xhr(url, (err, response, body) => {
+            if (err) {
+              throw new Error("Login Response not ok");
+            } else {
+              const token = typeof body === "string" ? body : JSON.parse(body);
+              dispatch({
+                type: "AUTH_LOGGED_IN",
+                payload: { token: token, error: null, shouldVerifyToken: true },
+              });
+            }
+          });
+        } catch (err) {
+          if (process.env.NODE_ENV === "development") console.error(err);
+          dispatch({
+            type: "AUTH_ERROR",
+            payload: { msg: "Error Logging In", err: err },
+          });
+        }
       }
     },
 
@@ -94,6 +106,8 @@ export default (opts) => {
     selectAuthRedirectOnLogout: (state) => {
       return state.auth.redirectOnLogout;
     },
+
+    selectAuthIsMocked: (state) => state.auth.mock,
 
     selectAuthUrl: (state) => {
       return state.auth.url;
