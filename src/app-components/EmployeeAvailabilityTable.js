@@ -18,7 +18,7 @@ const Snippet = connect(
     return (
       <div>
         {Object.keys(projects).map((p, idx) => (
-          <div>
+          <div key={idx}>
             {projectObj[p].name}
             <small>({projects[p].days}days)</small>
           </div>
