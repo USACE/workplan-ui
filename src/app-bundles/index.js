@@ -16,6 +16,7 @@ import commitmentsBundle from "./commitments-bundle";
 import employeesBundle from "./employees-bundle";
 import projectsBundle from "./projects-bundle";
 import timeperiodBundle from "./timeperiod-bundle";
+import leaveBundle from "./leave-bundle";
 
 // In House Labor
 // Travel/BuyingStuff
@@ -64,5 +65,6 @@ export default composeBundles(
   commitmentsBundle,
   employeesBundle,
   projectsBundle,
-  timeperiodBundle
+  timeperiodBundle,
+  leaveBundle
 );

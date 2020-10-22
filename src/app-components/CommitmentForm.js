@@ -4,35 +4,55 @@ import { connect } from "redux-bundler-react";
 export default connect(
   "selectEmployeesItemsObject",
   "selectEmployeesItemsArray",
+  "selectProjectsItemsObject",
   "selectProjectsItemsArray",
   "selectTimeperiodCurrentAndFutureItemsArray",
   "doTimeperiodSetSelectedId",
   "selectTimeperiodSelectedId",
   "doCommitmentsSave",
+  "doLeaveSave",
   ({
     employeesItemsObject: employeesObject,
     employeesItemsArray: employees,
+    projectsItemsObject: projectsObj,
     projectsItemsArray: projects,
     timeperiodCurrentAndFutureItemsArray: timeperiods,
     doTimeperiodSetSelectedId,
     timeperiodSelectedId,
     doCommitmentsSave,
+    doLeaveSave,
   }) => {
     const [employee, setEmployee] = useState("");
     const [project, setProject] = useState("");
     const [days, setDays] = useState(0);
+    const [projectDropdownIsOpen, setProjectDropdownIsOpen] = useState(false);
+
+    const toggleProjectDropdownIsOpen = () => {
+      setProjectDropdownIsOpen(!projectDropdownIsOpen);
+    };
 
     const handleSubmit = (e) => {
       e.preventDefault();
-      const payload = {
+      const base_payload = {
         employee_id: employee,
-        project_id: project,
         timeperiod_id: timeperiodSelectedId,
         days: days,
-        cost: employeesObject[employee].rate * 8 * days,
       };
-      console.log(payload);
-      doCommitmentsSave(payload);
+      if (days <= 0) {
+        console.log("\n\nCOMMITMENT MUST BE GREATER THAN 0 DAYS\n\n");
+        return;
+      }
+      if (project.toUpperCase() === "LEAVE") {
+        console.log(base_payload);
+        doLeaveSave(base_payload);
+      } else {
+        // Add project_id to payload
+        doCommitmentsSave({
+          ...base_payload,
+          project_id: project,
+          cost: 0, // Let API calculate cost and update page on fetch
+        });
+      }
     };
 
     const initializeForm = () => {
@@ -40,7 +60,7 @@ export default connect(
         setEmployee(employees[0].id);
       }
       if (project === "" && projects && projects.length) {
-        setProject(projects[0].id);
+        setProject("Leave");
       }
       if (!timeperiodSelectedId && timeperiods && timeperiods.length) {
         doTimeperiodSetSelectedId(timeperiods[0].id);
@@ -84,20 +104,6 @@ export default connect(
               </select>
             </div>
             <div className="mx-2">
-              <label>Project</label>
-              <select
-                value={project}
-                onChange={(e) => setProject(e.target.value)}
-                className="custom-select"
-              >
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="mx-2">
               <label>Days to Commit</label>
               <input
                 onChange={(e) => setDays(parseInt(e.target.value))}
@@ -109,15 +115,65 @@ export default connect(
                 required
               />
             </div>
-            <div className="ml-2">
-              <button
-                type="button"
-                className="btn btn-info"
-                onClick={handleSubmit}
-              >
-                Submit
-              </button>
+            <div className="mx-2">
+              <div>
+                <label>Project</label>
+              </div>
+              <div class="btn-group">
+                <button
+                  type="button"
+                  className="btn btn-block btn-secondary dropdown-toggle"
+                  onClick={(e) => {
+                    toggleProjectDropdownIsOpen();
+                  }}
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  {(project &&
+                    projectsObj &&
+                    projectsObj[project] &&
+                    projectsObj[project].name) ||
+                    project}
+                </button>
+                <div
+                  className={`dropdown-menu ${
+                    projectDropdownIsOpen ? "show" : ""
+                  }`}
+                >
+                  <span
+                    className="dropdown-item cursor-pointer"
+                    onClick={(e) => {
+                      setProject("Leave");
+                      setProjectDropdownIsOpen(false);
+                    }}
+                  >
+                    Leave
+                  </span>
+                  <div class="dropdown-divider"></div>
+                  {projects.map((p) => (
+                    <span
+                      className="dropdown-item"
+                      onClick={(e) => {
+                        setProject(p.id);
+                        setProjectDropdownIsOpen(false);
+                      }}
+                    >
+                      {p.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
+          </div>
+          <div className="mt-2">
+            <button
+              type="button"
+              className="btn btn-block btn-info"
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
           </div>
         </div>
       </form>

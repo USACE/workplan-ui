@@ -18,48 +18,17 @@ export default createRestBundle({
   urlParamSelectors: [],
   allowRoles: ["PUBLIC.USER"],
   addons: {
-    selectEmployeesTimeperiodProjectBreakdown: createSelector(
-      "selectEmployeesTimeperiodCommittedDaysByProject",
-      "selectTimeperiodItemsObject",
-      (tbp, timeperiodItemsObj) => {
-        if (
-          Object.keys(tbp).length === 0 ||
-          !timeperiodItemsObj ||
-          Object.keys(timeperiodItemsObj).length === 0
-        ) {
-          return {};
-        }
-        let obj = {};
-        Object.keys(tbp).forEach((employee_id) => {
-          obj[employee_id] = {};
-          Object.keys(tbp[employee_id]).forEach((timeperiod_id) => {
-            obj[employee_id][timeperiod_id] = {};
-            // If commitments for employee in timeperiod...
-            if (Object.keys(tbp[employee_id][timeperiod_id]).length) {
-              Object.keys(tbp[employee_id][timeperiod_id]).forEach(
-                (project_id) => {
-                  obj[employee_id][timeperiod_id][project_id] = parseInt(
-                    (tbp[employee_id][timeperiod_id][project_id] /
-                      timeperiodItemsObj[timeperiod_id].workdays) *
-                      100
-                  );
-                }
-              );
-            }
-          });
-        });
-        return obj;
-      }
-    ),
     selectEmployeesTimeperiodSummary: createSelector(
       "selectEmployeesItemsArray",
       "selectCommitmentsItemsArray",
+      "selectLeaveItemsArray",
       "selectTimeperiodItemsObject",
       "selectEmployeesIsLoading",
       "selectTimeperiodIsLoading",
       (
         employees,
         commitments,
+        leave,
         timeperiodObj,
         employeesIsLoading,
         timeperiodIsLoading
@@ -81,13 +50,16 @@ export default createRestBundle({
             obj[e.id][t.id] = {
               workdays_total: t.workdays,
               workdays_free: t.workdays, // Compute later...
+              leavedays: 0,
               projects: {},
             };
           });
         });
+        // Account for Labor Commitments
         commitments.forEach((c) => {
           // Add to employee's projects for timeperiod
           obj[c.employee_id][c.timeperiod_id]["projects"][c.project_id] = {
+            commitment_id: c.id,
             days: c.days,
             percent: parseInt(
               (c.days * 100) / timeperiodObj[c.timeperiod_id].workdays
@@ -96,7 +68,11 @@ export default createRestBundle({
           // Adjust workdays_free for employee timeperiod
           obj[c.employee_id][c.timeperiod_id].workdays_free -= c.days;
         });
-
+        // Account for Leave
+        leave.forEach((l) => {
+          obj[l.employee_id][l.timeperiod_id].workdays_free -= l.days;
+          obj[l.employee_id][l.timeperiod_id].leavedays += l.days;
+        });
         return obj;
       }
     ),
@@ -137,41 +113,6 @@ export default createRestBundle({
           } else {
             obj[c.employee_id][c.timeperiod_id][c.project_id] += c.days;
           }
-        });
-        return obj;
-      }
-    ),
-    selectEmployeesTimeperiodCommitmentTotals: createSelector(
-      "selectEmployeesTimeperiodCommittedDaysByProject",
-      "selectTimeperiodItemsObject",
-      (tbp, timeperiodItemsObj) => {
-        if (
-          Object.keys(tbp).length === 0 ||
-          !timeperiodItemsObj ||
-          Object.keys(timeperiodItemsObj).length === 0
-        ) {
-          return {};
-        }
-        let obj = {};
-        Object.keys(tbp).forEach((employee_id) => {
-          obj[employee_id] = {};
-          Object.keys(tbp[employee_id]).forEach((timeperiod_id) => {
-            obj[employee_id][timeperiod_id] = {
-              available: timeperiodItemsObj[timeperiod_id].workdays,
-              committed: 0,
-            };
-            // If commitments for employee in timeperiod...
-            if (Object.keys(tbp[employee_id][timeperiod_id]).length) {
-              Object.keys(tbp[employee_id][timeperiod_id]).forEach(
-                (project_id) => {
-                  obj[employee_id][timeperiod_id].committed +=
-                    tbp[employee_id][timeperiod_id][project_id];
-                  obj[employee_id][timeperiod_id].available -=
-                    tbp[employee_id][timeperiod_id][project_id];
-                }
-              );
-            }
-          });
         });
         return obj;
       }

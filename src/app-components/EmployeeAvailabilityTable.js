@@ -13,12 +13,22 @@ export const EmployeeAvailabilityTableKey = (props) => (
 
 const Snippet = connect(
   "selectProjectsItemsObject",
-  ({ projectsItemsObject: projectObj, item }) => {
+  "doCommitmentsDelete",
+  ({ projectsItemsObject: projectObj, doCommitmentsDelete, item }) => {
     const projects = item.projects;
     return (
       <div>
         {Object.keys(projects).map((p, idx) => (
-          <div key={idx}>
+          <div
+            key={idx}
+            className="d-flex flex-row justify-content-between align-items-center"
+          >
+            <i
+              className="mdi mdi-delete-forever pr-1"
+              onClick={(e) => {
+                doCommitmentsDelete({ id: projects[p].commitment_id });
+              }}
+            />
             {projectObj[p].name}
             <small>({projects[p].days}days)</small>
           </div>
@@ -29,21 +39,17 @@ const Snippet = connect(
 );
 
 export const EmployeeAvailabilityTable = connect(
-  "selectEmployeesTimeperiodCommitmentTotals",
   "selectEmployeesTimeperiodSummary",
   "selectTimeperiodItemsArray",
   "selectEmployeesItemsArray",
   "selectTimeperiodSelected",
   "selectTimeperiodCurrent",
-  "selectProjectsItemsObject",
   ({
-    employeesTimeperiodCommitmentTotals: ecTotals,
     employeesTimeperiodSummary: etSummary,
     timeperiodItemsArray: timeperiods,
     employeesItemsArray: employees,
     timeperiodSelected,
     timeperiodCurrent,
-    projectsItemsObject: projectsObj,
   }) => {
     const DaysAvailable = ({ days }) => {
       const daClass = (days) =>
@@ -68,8 +74,8 @@ export const EmployeeAvailabilityTable = connect(
       timeperiods.length &&
       employees &&
       employees.length &&
-      ecTotals &&
-      Object.keys(ecTotals).length && (
+      etSummary &&
+      Object.keys(etSummary).length && (
         <table className="table">
           <thead className="thead-dark">
             <tr>
@@ -96,7 +102,11 @@ export const EmployeeAvailabilityTable = connect(
                       key={`${e.id}-${t.id}-hoursavailable`}
                       className={tpCellClass(t)}
                     >
-                      {<DaysAvailable days={ecTotals[e.id][t.id].available} />}
+                      {
+                        <DaysAvailable
+                          days={etSummary[e.id][t.id].workdays_free}
+                        />
+                      }
                     </td>
                   ))}
                 </tr>

@@ -45,10 +45,12 @@ export default connect(
               <div className="row mb-3">
                 <div className="d-flex justify-content-between align-items-end">
                   <CommitmentForm />
-                  <EmployeeAvailabilityTableKey />
                 </div>
               </div>
-              <div className="row">
+              <div className="row mt-5">
+                <div className="col">
+                  <EmployeeAvailabilityTableKey />
+                </div>
                 <div className="col">
                   <small>
                     * Numbers represent days not yet assigned to projects or

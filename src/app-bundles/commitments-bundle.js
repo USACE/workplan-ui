@@ -46,5 +46,22 @@ export default createRestBundle({
         return obj;
       }
     ),
+    doCommitmentsDeleteByEmployeeIdProjectIdTimeperiodId: ({
+      employeeId,
+      projectId,
+      timeperiodId,
+    }) => ({ store }) => {
+      const cc = store.selectCommitmentsItemsArray();
+      const deleteCommitments = cc.filter(
+        (c) =>
+          c.employee_id === employeeId &&
+          c.project_id === projectId &&
+          c.timeperiod_id === timeperiodId
+      );
+      // Typically only 1 commitment to delete;
+      // If it's typical to bulk-delete these, may be best to send an array
+      // of commitmentIds to delete with a single HTTP Call (not calling URLs in a loop)
+      deleteCommitments.forEach((c) => store.doCommitmentsDelete(c));
+    },
   },
 });
