@@ -86,7 +86,7 @@ export default createRestBundle({
           });
         });
         commitments.forEach((c) => {
-          if (Object.hasOwnProperty(c.project_id)) {
+          if (obj.hasOwnProperty(c.project_id)) {
             obj[c.project_id][c.timeperiod_id] += c.cost;
           }
         });
