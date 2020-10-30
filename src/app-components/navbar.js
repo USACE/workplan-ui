@@ -105,7 +105,9 @@ export default connect(
   "selectAuthIsLoggedIn",
   ({ doAuthLogin, authIsLoggedIn }) => (
     <nav className="navbar navbar-expand-md navbar-dark bg-dark">
-      <span className="navbar-brand">workplan</span>
+      <a href="/">
+        <span className="navbar-brand">workplan</span>
+      </a>
       <button
         className="navbar-toggler"
         type="button"
@@ -122,7 +124,14 @@ export default connect(
           <ul className="navbar-nav mr-auto"></ul>
           <ul className="navbar-nav">
             {authIsLoggedIn ? (
-              <ProfileMenu />
+              <>
+                <NavItem href="/admin">
+                  <i className="mdi mdi-cog" />
+                  SETTINGS
+                </NavItem>
+
+                <ProfileMenu />
+              </>
             ) : (
               <NavItem handler={doAuthLogin}>Login</NavItem>
             )}

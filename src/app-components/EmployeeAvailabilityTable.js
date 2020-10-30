@@ -61,6 +61,7 @@ export const EmployeeAvailabilityTable = connect(
     };
 
     const tpCellClass = (timeperiod) =>
+      timeperiod &&
       classnames({
         "text-center": true,
         "font-weight-light": timeperiod.id !== timeperiodSelected.id,

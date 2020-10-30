@@ -10,7 +10,7 @@ export default createRestBundle({
   sortBy: "name",
   routeParam: "",
   getTemplate: "/projects",
-  putTemplate: "/:",
+  putTemplate: "/projects/:item.id",
   postTemplate: "/projects",
   deleteTemplate: "/projects/:item.id",
   fetchActions: ["URL_UPDATED", "AUTH_LOGGED_IN"],
@@ -86,7 +86,9 @@ export default createRestBundle({
           });
         });
         commitments.forEach((c) => {
-          obj[c.project_id][c.timeperiod_id] += c.cost;
+          if (Object.hasOwnProperty(c.project_id)) {
+            obj[c.project_id][c.timeperiod_id] += c.cost;
+          }
         });
 
         return obj;
