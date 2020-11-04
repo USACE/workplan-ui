@@ -7,14 +7,7 @@ const DeleteButton = connect(
   "doProjectsDelete",
   "doModalClose",
   "doUpdateUrlWithHomepage",
-  "selectRouteParams",
-  ({
-    doProjectsDelete,
-    doModalClose,
-    doUpdateUrlWithHomepage,
-    routeParams,
-    item,
-  }) => {
+  ({ doProjectsDelete, doModalClose, doUpdateUrlWithHomepage, item }) => {
     const [isConfirming, setIsConfirming] = useState(false);
     if (!item || !item.id) return null;
 
@@ -35,6 +28,13 @@ const DeleteButton = connect(
         {isConfirming ? (
           <div className="btn-group">
             <button
+              title="Confirm"
+              className="btn btn-danger"
+              onClick={handleDelete}
+            >
+              Confirm
+            </button>
+            <button
               title="Cancel"
               className="btn btn-secondary"
               onClick={() => {
@@ -42,13 +42,6 @@ const DeleteButton = connect(
               }}
             >
               Cancel
-            </button>
-            <button
-              title="Confirm"
-              className="btn btn-danger"
-              onClick={handleDelete}
-            >
-              Confirm
             </button>
           </div>
         ) : (
@@ -73,6 +66,9 @@ const ProjectForm = connect(
   ({ doProjectsSave, doModalClose, item }) => {
     const [name, setName] = useState((item && item.name) || "");
     const [funding, setFunding] = useState((item && item.funding) || "");
+    const [userFeedbackEnabled, setUserFeedbackEnabled] = useState(
+      (item && item.feedback_enabled) || false
+    );
     return (
       <div className="modal-content" style={{ overflowY: "auto" }}>
         <form id="project-form" onSubmit={doModalClose}>
@@ -107,6 +103,19 @@ const ProjectForm = connect(
                 placeholder="$0"
               />
             </div>
+            {/* Checkbox */}
+            <div className="custom-control custom-checkbox">
+              <input
+                type="checkbox"
+                className="custom-control-input"
+                id="customCheck1"
+                checked={userFeedbackEnabled}
+                onClick={(e) => setUserFeedbackEnabled(!userFeedbackEnabled)}
+              />
+              <label className="custom-control-label" for="customCheck1">
+                Enable User Feedback
+              </label>
+            </div>
           </section>
           <footer
             className="modal-footer"
@@ -118,15 +127,9 @@ const ProjectForm = connect(
           >
             <div className="d-flex w-100 justify-content-between">
               <div>
-                <DeleteButton item={item} />
-              </div>
-              <div>
-                <button type="submit" className="btn btn-secondary">
-                  Cancel
-                </button>
                 <button
                   type="button"
-                  className="btn btn-primary ml-2"
+                  className="btn btn-primary mr-2"
                   onClick={(e) => {
                     e.preventDefault();
                     const obj = {
@@ -138,12 +141,19 @@ const ProjectForm = connect(
                       ...item,
                       name: name,
                       funding: funding,
+                      feedback_enabled: userFeedbackEnabled,
                     });
                     doModalClose();
                   }}
                 >
                   Save
                 </button>
+                <button type="submit" className="btn btn-secondary">
+                  Cancel
+                </button>
+              </div>
+              <div>
+                <DeleteButton item={item} />
               </div>
             </div>
           </footer>
