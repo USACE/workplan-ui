@@ -35,7 +35,7 @@ export default composeBundles(
   }),
   createJwtApiBundle({
     root:
-      process.env.NODE_ENV !== "development"
+      process.env.NODE_ENV === "development"
         ? `http://localhost:3030/workplan`
         : `https://api.rsgis.dev/development/workplan`,
     tokenSelector: "selectAuthTokenRaw",
