@@ -129,7 +129,6 @@ export default connect(
                   <i className="mdi mdi-cog" />
                   SETTINGS
                 </NavItem>
-
                 <ProfileMenu />
               </>
             ) : (

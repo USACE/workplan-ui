@@ -4,6 +4,9 @@ import { connect } from "redux-bundler-react";
 import { BarChart } from "./Charts";
 import Spinner from "./Spinner";
 
+import { DateTime } from "luxon";
+import EditProjectFundingOnClickWrapper from "./EditProjectFunding/EditProjectFundingButton";
+
 const ExpectedCharges = connect(
   "selectProjectsCostsTotal",
   ({ projectsCostsTotal, projectId }) =>
@@ -24,18 +27,58 @@ const ExpectedCharges = connect(
 );
 
 const ExpectedExecution = connect(
-  "selectProjectsCostsTotal",
-  ({ projectsCostsTotal, project }) =>
-    !projectsCostsTotal ? (
-      ""
-    ) : (
+  "selectProjectsCostsFuture",
+  ({ projectsCostsFuture, project }) =>
+    projectsCostsFuture && (
       <div className="c-callout py-0 my-0 py-0 c-callout-secondary">
         <small className="text-muted">Execution</small>
         <br />
-        <strong className="p">{`${(
-          (projectsCostsTotal[project.id] / project.funding) *
-          100
-        ).toFixed(0)}%`}</strong>
+        <strong className="p">
+          {project &&
+            project.funds_remaining &&
+            `${(
+              (projectsCostsFuture[project.id] / project.funds_remaining) *
+              100
+            ).toFixed(0)}%`}
+        </strong>
+      </div>
+    )
+);
+
+const ForecastedEndOfFYBalance = connect(
+  "selectProjectsCostsFuture",
+  ({ projectsCostsFuture, project }) =>
+    projectsCostsFuture && (
+      <div className="c-callout py-0 my-0 py-0 c-callout-secondary">
+        <small className="text-muted">Forecast Bal.</small>
+        <br />
+        <strong className="p">
+          {project &&
+            project.funds_remaining &&
+            (
+              project.funds_remaining - projectsCostsFuture[project.id]
+            ).toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+            })}
+        </strong>
+      </div>
+    )
+);
+
+const ExpectedChargesFuture = connect(
+  "selectProjectsCostsFuture",
+  ({ projectsCostsFuture, project }) =>
+    projectsCostsFuture && (
+      <div className="c-callout py-0 my-0 py-0 c-callout-secondary">
+        <small className="text-muted">Now --> FY End</small>
+        <br />
+        <strong className="p">
+          {projectsCostsFuture[project.id].toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+          })}
+        </strong>
       </div>
     )
 );
@@ -104,6 +147,37 @@ const MyBarChart = connect(
   }
 );
 
+const CardFundingRemainingBlock = ({ project }) => {
+  return (
+    project && (
+      <div>
+        <EditProjectFundingOnClickWrapper project={project}>
+          {project.funds_remaining ? (
+            <>
+              <h5 className="text-right mb-0">
+                {`$${(project.funds_remaining / 1000).toLocaleString("en-US", {
+                  style: "decimal",
+                })}K`}
+              </h5>
+              <p className="text-right text-muted text-small mb-0">
+                <small>
+                  {`${DateTime.fromISO(
+                    project.latest_reality_check
+                  ).toRelative()}`}
+                </small>
+              </p>
+            </>
+          ) : (
+            <>
+              <h5 className="text-right mb-0">?</h5>
+            </>
+          )}
+        </EditProjectFundingOnClickWrapper>
+      </div>
+    )
+  );
+};
+
 export default ({ project }) => (
   <div className="card">
     <div className="card-header">
@@ -112,28 +186,23 @@ export default ({ project }) => (
           <h4>{project.name}</h4>
         </div>
         <div className="col-4">
-          <h5 className="text-right">
-            {`$${(project.funding / 1000).toLocaleString("en-US", {
-              style: "decimal",
-            })}K`}
-          </h5>
+          <CardFundingRemainingBlock project={project} />
         </div>
       </div>
     </div>
     <div className="card-body">
       <div className="row">
         <div className="col">
-          <div className="c-callout py-0 my-0 py-0 c-callout-secondary">
-            <small className="text-muted">$ Received</small>
-            <br />
-            <strong className="p">0</strong>
-          </div>
-        </div>
-        <div className="col">
           <ExpectedCharges projectId={project.id} />
         </div>
         <div className="col">
+          <ExpectedChargesFuture project={project} />
+        </div>
+        <div className="col">
           <ExpectedExecution project={project} />
+        </div>
+        <div className="col">
+          <ForecastedEndOfFYBalance project={project} />
         </div>
       </div>
       <MyBarChart project={project} />

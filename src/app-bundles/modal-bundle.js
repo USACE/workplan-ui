@@ -20,6 +20,7 @@ export default {
       payload: {
         content: content,
         props: props,
+        size: size,
       },
     });
   },

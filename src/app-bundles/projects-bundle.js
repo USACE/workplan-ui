@@ -14,7 +14,7 @@ export default createRestBundle({
   postTemplate: "/projects",
   deleteTemplate: "/projects/:item.id",
   fetchActions: ["URL_UPDATED", "AUTH_LOGGED_IN"],
-  forceFetchActions: [],
+  forceFetchActions: ["PROJECTS_FUNDING_SAVE_FINISH"],
   urlParamSelectors: [],
   allowRoles: ["PUBLIC.USER"],
   addons: {
@@ -49,6 +49,34 @@ export default createRestBundle({
         Object.keys(tpc).forEach((projectId) => {
           obj[projectId] = Object.values(tpc[projectId]).reduce(
             (acc, item) => acc + item,
+            0
+          );
+        });
+        return obj;
+      }
+    ),
+    selectProjectsCostsFuture: createSelector(
+      "selectProjectsCostsByTimeperiod",
+      "selectTimeperiodCurrentAndFutureItemsArray",
+      (tpc, tt) => {
+        if (!tpc) {
+          return null;
+        }
+        // timeperiod ids
+        const ii = tt.map((t) => t.id);
+        let obj = {};
+        Object.keys(tpc).forEach((projectId) => {
+          // https://stackoverflow.com/questions/49945237/reduce-object-thought-object-entries
+          obj[projectId] = Object.entries(tpc[projectId]).reduce(
+            (acc, [k, v]) => {
+              // if the timeperiod id we're working on is in the
+              // array of timeperiod ids known to be current or future
+              // include it in the total; if not, return the current total without adding
+              if (ii.indexOf(k) !== -1) {
+                return acc + v;
+              }
+              return acc;
+            },
             0
           );
         });
@@ -94,5 +122,39 @@ export default createRestBundle({
         return obj;
       }
     ),
+    doProjectsFundingSave: (payload) => ({ dispatch, store }) => {
+      dispatch({ type: "PROJECTS_FUNDING_SAVE_START" });
+      const apiRoot = store.selectApiRoot();
+      const authToken = store.selectAuthTokenRaw();
+
+      const url = `${apiRoot}/projects/${payload.project_id}/funding_reality_check`;
+
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + authToken,
+        },
+      }).then((response) => {
+        if (!response.ok) {
+          console.error(
+            `Failed POST to URL: ${url}; payload: ${JSON.stringify(payload)}`
+          );
+        }
+        dispatch({
+          type: "PROJECTS_FUNDING_SAVE_FINISH",
+        });
+      });
+    },
+    reduceFurther: (state, { type, payload }) => {
+      switch (type) {
+        case "PROJECTS_FUNDING_SAVE_START":
+        case "PROJECTS_FUNDING_SAVE_FINISH":
+          return Object.assign({}, state, payload);
+        default:
+          return state;
+      }
+    },
   },
 });

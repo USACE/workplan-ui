@@ -6,7 +6,6 @@ import Modal from "./app-components/modal";
 import "./css/bootstrap/css/bootstrap.min.css";
 import "./css/mdi/css/materialdesignicons.min.css";
 import "./css/ms/css/mapskin.min.css";
-import "./css/index.css";
 
 export default connect("selectRoute", ({ route: Route }) => {
   return (

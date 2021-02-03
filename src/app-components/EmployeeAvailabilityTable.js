@@ -40,13 +40,13 @@ const Snippet = connect(
 
 export const EmployeeAvailabilityTable = connect(
   "selectEmployeesTimeperiodSummary",
-  "selectTimeperiodItemsArray",
+  "selectTimeperiodCurrentAndFutureItemsArray",
   "selectEmployeesItemsArray",
   "selectTimeperiodSelected",
   "selectTimeperiodCurrent",
   ({
     employeesTimeperiodSummary: etSummary,
-    timeperiodItemsArray: timeperiods,
+    timeperiodCurrentAndFutureItemsArray: timeperiods,
     employeesItemsArray: employees,
     timeperiodSelected,
     timeperiodCurrent,
