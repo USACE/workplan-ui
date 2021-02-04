@@ -198,11 +198,12 @@ export default ({ project }) => (
         <div className="col">
           <ExpectedChargesFuture project={project} />
         </div>
-        <div className="col">
-          <ExpectedExecution project={project} />
-        </div>
+
         <div className="col">
           <ForecastedEndOfFYBalance project={project} />
+        </div>
+        <div className="col">
+          <ExpectedExecution project={project} />
         </div>
       </div>
       <MyBarChart project={project} />

@@ -52,11 +52,13 @@ export default connect(
                   <EmployeeAvailabilityTableKey />
                 </div>
                 <div className="col">
-                  <small>
-                    * Numbers represent days not yet assigned to projects or
-                    leave
-                  </small>
-                  <EmployeeAvailabilityTable />
+                  <div className="w-100 overflow-auto">
+                    <small>
+                      * Numbers represent days not yet assigned to projects or
+                      leave
+                    </small>
+                    <EmployeeAvailabilityTable />
+                  </div>
                 </div>
               </div>
             </>
