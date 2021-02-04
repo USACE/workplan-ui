@@ -17,23 +17,26 @@ const Snippet = connect(
   ({ projectsItemsObject: projectObj, doCommitmentsDelete, item }) => {
     const projects = item.projects;
     return (
-      <div>
-        {Object.keys(projects).map((p, idx) => (
-          <div
-            key={idx}
-            className="d-flex flex-row justify-content-between align-items-center"
-          >
-            <i
-              className="mdi mdi-delete-forever pr-1"
-              onClick={(e) => {
-                doCommitmentsDelete({ id: projects[p].commitment_id });
-              }}
-            />
-            {projectObj[p].name}
-            <small>({projects[p].days}days)</small>
-          </div>
-        ))}
-      </div>
+      projectObj &&
+      Object.keys(projectObj).length && (
+        <div>
+          {Object.keys(projects).map((p, idx) => (
+            <div
+              key={idx}
+              className="d-flex flex-row justify-content-between align-items-center"
+            >
+              <i
+                className="mdi mdi-delete-forever pr-1"
+                onClick={(e) => {
+                  doCommitmentsDelete({ id: projects[p].commitment_id });
+                }}
+              />
+              {projectObj[p].name}
+              <small>({projects[p].days}days)</small>
+            </div>
+          ))}
+        </div>
+      )
     );
   }
 );
